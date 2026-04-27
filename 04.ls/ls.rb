@@ -1,20 +1,19 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
+
 require 'optparse'
 
 COLS = 3
 
-#引数を受け取る　-aだけ受け付ける
 command = ARGV[0].delete('-') # -aの-を削除してaだけにする
 
 # コマンドが複数あれば、for文で回す
 items = case command
-when 'a'
-  Dir.glob("*", File::FNM_DOTMATCH).sort
-else
-  Dir.glob('*').sort
-end
-
+        when 'a'
+          Dir.glob('*', File::FNM_DOTMATCH).sort
+        else
+          Dir.glob('*').sort
+        end
 
 def print_items(items)
   # 3列で表示するための行数を計算
