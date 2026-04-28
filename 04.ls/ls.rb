@@ -3,19 +3,27 @@
 
 COLS = 3
 
-items = Dir.glob('*').sort
-rows = (items.size.to_f / COLS).ceil
+def display_grid(items)
+  rows = (items.size.to_f / COLS).ceil
 
-grid = Array.new(rows) { Array.new(COLS) }
-items.each_with_index do |name, i|
-  row = i % rows
-  col = i / rows
-  grid[row][col] = name
+  grid = Array.new(rows) { Array.new(COLS) }
+  items.each_with_index do |name, i|
+    row = i % rows
+    col = i / rows
+    grid[row][col] = name
+  end
+
+  width = items.map(&:length).max + 2
+
+  grid.each do |row|
+    row.each { |name| printf "%-#{width}s", (name || '') }
+    puts
+  end
 end
 
-width = items.map(&:length).max + 2
-
-grid.each do |row|
-  row.each { |name| printf "%-#{width}s", (name || '') }
-  puts
+def main
+  items = Dir.glob('*').sort
+  display_grid(items)
 end
+
+main
