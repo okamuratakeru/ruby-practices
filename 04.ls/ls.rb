@@ -11,6 +11,8 @@ command = ARGV[0].delete('-') # -aの-を削除してaだけにする
 items = case command
         when 'a'
           Dir.glob('*', File::FNM_DOTMATCH).sort
+        when 'r'
+          Dir.glob('*').sort.reverse
         else
           Dir.glob('*').sort
         end
