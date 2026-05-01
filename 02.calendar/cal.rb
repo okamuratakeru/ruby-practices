@@ -11,16 +11,18 @@ OptionParser.new do |opt|
   opt.parse!(ARGV)
 end
 
-
 first = Date.new(params[:year], params[:month], 1)
 last  = Date.new(params[:year], params[:month], -1)
 
+title = "#{params[:year]}年 #{params[:month]}月"
+title_width = 4 + 2 + 2 + params[:month].to_s.length + 2
+puts ' ' * ((20 - title_width) / 2) + title
 puts '日 月 火 水 木 金 土'
 print '   ' * first.wday  # 1日の曜日までスペース埋め
 (1..last.day).each do |i|
   print i.to_s.rjust(3)
   if (first.wday + i) % 7 == 0
-    puts
+    puts "\n"
   end
 end
 puts
