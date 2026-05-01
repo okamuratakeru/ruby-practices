@@ -1,42 +1,63 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'optparse'
+exit unless ARGV.include?('-l')
 
-COLS = 3
+require 'etc'
 
-command = ARGV[0].delete('-') # -aの-を削除してaだけにする
+TYPE_CHAR = {
+  'file' => '-', 'directory' => 'd', 'link' => 'l',
+  'characterSpecial' => 'c', 'blockSpecial' => 'b',
+  'fifo' => 'p', 'socket' => 's', 'unknown' => '?'
+}.freeze
 
-# コマンドが複数あれば、for文で回す
-items = case command
-        when 'a'
-          Dir.glob('*', File::FNM_DOTMATCH).sort
-        when 'r'
-          Dir.glob('*').sort.reverse
-        else
-          Dir.glob('*').sort
-        end
+PERM_TABLE = {
+  '0' => '---', '1' => '--x', '2' => '-w-', '3' => '-wx',
+  '4' => 'r--', '5' => 'r-x', '6' => 'rw-', '7' => 'rwx'
+}.freeze
 
-def print_items(items)
-  # 3列で表示するための行数を計算
-  rows = (items.size.to_f / COLS).ceil
+def mode_string(stat)
+  type = TYPE_CHAR[stat.ftype]
+  octal = format('%03o', stat.mode & 0o777)
+  perms = octal.chars.map { |digit| PERM_TABLE[digit] }.join
 
-  # アイテムを行列に配置
-  grid = Array.new(rows) { Array.new(COLS) }
-  items.each_with_index do |name, i|
-    row = i % rows
-    col = i / rows
-    grid[row][col] = name
-  end
-
-  # 列の幅を計算
-  width = items.map(&:length).max + 2
-
-  # 行列を表示
-  grid.each do |row|
-    row.each { |name| printf "%-#{width}s", (name || '') }
-    puts
-  end
+  type + perms
 end
 
-print_items(items)
+def max_width(entries, &block)
+  entries.map(&block).map { |v| v.to_s.length }.max
+end
+
+items = Dir.glob('*').sort
+
+entries = items.map do |name|
+  stat = File.lstat(name)
+  {
+    mode: mode_string(stat),
+    nlink: stat.nlink,
+    user: Etc.getpwuid(stat.uid).name,
+    group: Etc.getgrgid(stat.gid).name,
+    size: stat.size,
+    mtime: stat.mtime.strftime('%b %e %H:%M'),
+    name: File.basename(name),
+    blocks: stat.blocks
+  }
+end
+
+nlink_w = max_width(entries) { |e| e[:nlink] }
+user_w  = max_width(entries) { |e| e[:user] }
+group_w = max_width(entries) { |e| e[:group] }
+size_w  = max_width(entries) { |e| e[:size] }
+
+puts "total #{entries.sum { |e| e[:blocks] }}"
+
+entries.each do |e|
+  printf "%s %*d %-*s  %-*s %*d %s %s\n",
+         e[:mode],
+         nlink_w, e[:nlink],
+         user_w,  e[:user],
+         group_w, e[:group],
+         size_w,  e[:size],
+         e[:mtime],
+         e[:name]
+end
