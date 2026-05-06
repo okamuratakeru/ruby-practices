@@ -4,7 +4,9 @@
 shots = ARGV[0].split(',').map { |s| s == 'X' ? 10 : s.to_i }
 
 i = 0
+frame_starts = []
 frames = 10.times.map do
+  frame_starts << i
   if shots[i] == 10
     i += 1
     [shots[i - 1]]
@@ -13,17 +15,16 @@ frames = 10.times.map do
     [shots[i - 2], shots[i - 1]]
   end
 end
-bonus = shots[i..]
 
-score = 0
-frames.each_with_index do |frame, idx|
-  score += frame.sum
-  next_shots = (frames[idx + 1..] + [bonus]).flatten.compact
+score = frames.each_with_index.sum do |frame, idx|
+  shot_idx = frame_starts[idx]
+  frame_score = frame.sum
   if frame == [10]
-    score += next_shots[0..1].sum
+    frame_score += shots[shot_idx + 1] + shots[shot_idx + 2]
   elsif frame.sum == 10
-    score += next_shots[0]
+    frame_score += shots[shot_idx + 2]
   end
+  frame_score
 end
 
 puts score
