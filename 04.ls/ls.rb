@@ -22,7 +22,7 @@ def display_grid(items)
 end
 
 def main
-  items = Dir.glob('*').sort
+  items = Dir.glob('*')
   display_grid(items)
 end
 
