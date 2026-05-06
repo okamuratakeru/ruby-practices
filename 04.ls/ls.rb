@@ -16,7 +16,7 @@ def display_grid(items)
   width = items.map(&:length).max + 2
 
   grid.each do |row|
-    row.each { |name| printf "%-#{width}s", (name || '') }
+    row.each { |name| print name.to_s.ljust(width) }
     puts
   end
 end
