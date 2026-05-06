@@ -4,7 +4,7 @@
 COLS = 3
 
 def display_grid(items)
-  rows = (items.size.to_f / COLS).ceil
+  rows = items.size.ceildiv(COLS)
 
   grid = Array.new(rows) { Array.new(COLS) }
   items.each_with_index do |name, i|
