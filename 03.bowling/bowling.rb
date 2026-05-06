@@ -3,15 +3,14 @@
 
 shots = ARGV[0].split(',').map { |s| s == 'X' ? 10 : s.to_i }
 
-frames = []
 i = 0
-10.times do
+frames = 10.times.map do
   if shots[i] == 10
-    frames << [shots[i]]
     i += 1
+    [shots[i - 1]]
   else
-    frames << [shots[i], shots[i + 1]]
     i += 2
+    [shots[i - 2], shots[i - 1]]
   end
 end
 bonus = shots[i..]
