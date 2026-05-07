@@ -10,8 +10,7 @@ def display_grid(items)
 
   grid = Array.new(rows) { Array.new(COLS) }
   items.each_with_index do |name, i|
-    row = i % rows
-    col = i / rows
+    col, row = i.divmod(rows)
     grid[row][col] = name
   end
 
