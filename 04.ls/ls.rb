@@ -28,7 +28,7 @@ def max_width(entries, &block)
   entries.map(&block).map { |v| v.to_s.length }.max
 end
 
-items = Dir.glob('*').sort
+items = Dir.glob('*')
 
 entries = items.map do |name|
   stat = File.lstat(name)
