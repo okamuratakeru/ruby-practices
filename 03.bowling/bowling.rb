@@ -3,28 +3,24 @@
 
 shots = ARGV[0].split(',').map { |s| s == 'X' ? 10 : s.to_i }
 
+# フレームの開始位置を計算する
 i = 0
-frame_starts = []
-frames = 10.times.map do
-  frame_starts << i
-  if shots[i] == 10
-    i += 1
-    [shots[i - 1]]
-  else
-    i += 2
-    [shots[i - 2], shots[i - 1]]
-  end
+frame_starts = 10.times.map do
+  pos = i
+  # ストライクなら次のフレームは1投後、そうでなければ2投後
+  i += shots[i] == 10 ? 1 : 2
+  pos
 end
 
-score = frames.each_with_index.sum do |frame, idx|
-  shot_idx = frame_starts[idx]
-  frame_score = frame.sum
-  if frame == [10]
-    frame_score += shots[shot_idx + 1] + shots[shot_idx + 2]
-  elsif frame.sum == 10
-    frame_score += shots[shot_idx + 2]
+# スコアを計算する
+score = frame_starts.sum do |shot_index|
+  if shots[shot_index] == 10
+    shots[shot_index..(shot_index + 2)].sum
+  elsif shots[shot_index...(shot_index + 2)].sum == 10
+    shots[shot_index..(shot_index + 2)].sum
+  else
+    shots[shot_index..(shot_index + 1)].sum
   end
-  frame_score
 end
 
 puts score
