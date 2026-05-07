@@ -4,6 +4,8 @@
 COLS = 3
 
 def display_grid(items)
+  return if items.empty?
+
   rows = items.size.ceildiv(COLS)
 
   grid = Array.new(rows) { Array.new(COLS) }
