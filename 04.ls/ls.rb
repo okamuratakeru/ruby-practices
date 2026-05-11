@@ -25,7 +25,7 @@ end
 def main
   return unless ARGV.include?('-a')
 
-  items = Dir.glob("*", File::FNM_DOTMATCH)
+  items = Dir.glob('*', File::FNM_DOTMATCH)
   display_grid(items)
 end
 
