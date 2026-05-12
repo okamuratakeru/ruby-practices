@@ -22,7 +22,7 @@ puts ' ' * ((20 - title_width) / 2) + title
 puts '日 月 火 水 木 金 土'
 print '   ' * first.wday # 1日の曜日までスペース埋め
 (1..last.day).each do |i|
-  print i.to_s.rjust(2) + ' '
+  print "#{i.to_s.rjust(2)} "
   puts "\n" if ((first.wday + i) % 7).zero?
 end
 puts
