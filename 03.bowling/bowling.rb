@@ -14,13 +14,12 @@ end
 
 # スコアを計算する
 score = frame_starts.sum do |shot_index|
-  if shots[shot_index] == 10
-    shots[shot_index..(shot_index + 2)].sum
-  elsif shots[shot_index...(shot_index + 2)].sum == 10
-    shots[shot_index..(shot_index + 2)].sum
-  else
-    shots[shot_index..(shot_index + 1)].sum
-  end
+  end_offset = if shots[shot_index] == 10 || shots[shot_index...(shot_index + 2)].sum == 10
+                 2
+               else
+                 1
+               end
+  shots[shot_index..(shot_index + end_offset)].sum
 end
 
 puts score
