@@ -30,7 +30,8 @@ def main
     opt.on('-a') { params[:all] = true }
   end.parse!(ARGV)
 
-  items = params[:all] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+  flag = params[:all] ? File::FNM_DOTMATCH : 0
+  items = Dir.glob('*', flag)
   display_grid(items)
 end
 
