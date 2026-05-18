@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
+
 COLS = 3
 
 def display_grid(items)
@@ -23,7 +25,13 @@ def display_grid(items)
 end
 
 def main
-  items = Dir.glob('*')
+  params = {}
+  OptionParser.new do |opt|
+    opt.on('-a') { params[:all] = true }
+  end.parse!(ARGV)
+
+  flag = params[:all] ? File::FNM_DOTMATCH : 0
+  items = Dir.glob('*', flag)
   display_grid(items)
 end
 
