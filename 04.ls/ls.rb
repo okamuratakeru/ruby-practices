@@ -24,7 +24,7 @@ def display_grid(items)
   end
 end
 
-def collect_items(all: false, reverse: false)
+def entories(all: false, reverse: false)
   flag = all ? File::FNM_DOTMATCH : 0
   items = Dir.glob('*', flag)
   reverse ? items.reverse : items
@@ -37,7 +37,7 @@ def main
     opt.on('-r') { oputions[:reverse] = true }
   end.parse!(ARGV)
 
-  entries = collect_items(**oputions)
+  entries = entories(**oputions)
   display_grid(entries)
 end
 
