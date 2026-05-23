@@ -2,10 +2,38 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'etc'
 
 COLS = 3
 
-def display_grid(items)
+TYPE_CHAR = {
+  'file' => '-',
+  'directory' => 'd',
+  'link' => 'l',
+  'characterSpecial' => 'c',
+  'blockSpecial' => 'b',
+  'fifo' => 'p',
+  'socket' => 's',
+  'unknown' => '?'
+}.freeze
+
+PERM_TABLE = {
+  '0' => '---', '1' => '--x', '2' => '-w-', '3' => '-wx',
+  '4' => 'r--', '5' => 'r-x', '6' => 'rw-', '7' => 'rwx'
+}.freeze
+
+def mode_string(stat)
+  type  = TYPE_CHAR[stat.ftype]
+  octal = format('%03o', stat.mode & 0o777)
+  perms = octal.chars.map { |digit| PERM_TABLE[digit] }.join
+  type + perms
+end
+
+def max_width(entries, &block)
+  entries.map(&block).map { |v| v.to_s.length }.max
+end
+
+def print_grid(items)
   return if items.empty?
 
   rows = items.size.ceildiv(COLS)
@@ -24,15 +52,68 @@ def display_grid(items)
   end
 end
 
+def column_widths(entries)
+  {
+    nlink: max_width(entries) { |e| e[:nlink] },
+    owner: max_width(entries) { |e| e[:owner] },
+    group: max_width(entries) { |e| e[:group] },
+    size: max_width(entries) { |e| e[:size] }
+  }
+end
+
+def build_entries(file_list)
+  file_list.map do |file|
+    status = File.lstat(file)
+    {
+      mode: mode_string(status),
+      nlink: status.nlink,
+      owner: Etc.getpwuid(status.uid).name,
+      group: Etc.getgrgid(status.gid).name,
+      size: status.size,
+      mtime: status.mtime.strftime('%b %e %H:%M'),
+      name: File.basename(file),
+      blocks: status.blocks
+    }
+  end
+end
+
+def print_long(file_list)
+  entries = build_entries(file_list)
+
+  puts "total #{entries.sum { |e| e[:blocks] }}"
+
+  widths = column_widths(entries)
+
+  entries.each do |e|
+    printf(
+      "%s %#{widths[:nlink]}d %-#{widths[:owner]}s %-#{widths[:group]}s %#{widths[:size]}d %s %s\n",
+      e[:mode], e[:nlink], e[:owner], e[:group],
+      e[:size], e[:mtime], e[:name]
+    )
+  end
+end
+
+def filter_entries(all: false, reverse: false)
+  flag = all ? File::FNM_DOTMATCH : 0
+  items = Dir.glob('*', flag)
+  reverse ? items.reverse : items
+end
+
 def main
-  params = {}
+  options = {}
   OptionParser.new do |opt|
-    opt.on('-a') { params[:all] = true }
+    opt.on('-a') { options[:all] = true }
+    opt.on('-r') { options[:reverse] = true }
+    opt.on('-l') { options[:long] = true }
   end.parse!(ARGV)
 
-  flag = params[:all] ? File::FNM_DOTMATCH : 0
-  items = Dir.glob('*', flag)
-  display_grid(items)
+  file_list = filter_entries(all: options[:all], reverse: options[:reverse])
+
+  if options[:long]
+    print_long(file_list)
+  else
+    print_grid(file_list)
+  end
 end
 
 main
