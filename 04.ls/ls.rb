@@ -30,7 +30,7 @@ def mode_string(stat)
 end
 
 def max_width(entries, attribute)
-  entries.map { |e| e[attribute].to_s.length }.max
+  entries.map { |e| e[attribute].length }.max
 end
 
 def print_grid(items)
@@ -66,10 +66,10 @@ def build_entries(file_list)
     status = File.lstat(file)
     {
       mode: mode_string(status),
-      nlink: status.nlink,
+      nlink: status.nlink.to_s,
       owner: Etc.getpwuid(status.uid).name,
       group: Etc.getgrgid(status.gid).name,
-      size: status.size,
+      size: status.size.to_s,
       mtime: status.mtime.strftime('%b %e %H:%M'),
       name: File.basename(file),
       blocks: status.blocks
@@ -85,11 +85,15 @@ def print_long(file_list)
   widths = column_widths(entries)
 
   entries.each do |e|
-    printf(
-      "%s %#{widths[:nlink]}d %-#{widths[:owner]}s %-#{widths[:group]}s %#{widths[:size]}d %s %s\n",
-      e[:mode], e[:nlink], e[:owner], e[:group],
-      e[:size], e[:mtime], e[:name]
-    )
+    puts [
+      e[:mode],
+      e[:nlink].rjust(widths[:nlink]),
+      e[:owner].ljust(widths[:owner]),
+      e[:group].ljust(widths[:group]),
+      e[:size].rjust(widths[:size]),
+      e[:mtime],
+      e[:name]
+    ].join(' ')
   end
 end
 
