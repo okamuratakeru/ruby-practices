@@ -29,8 +29,8 @@ def mode_string(stat)
   type + perms
 end
 
-def max_width(entries, &block)
-  entries.map(&block).map { |v| v.to_s.length }.max
+def max_width(entries, attribute)
+  entries.map { |e| e[attribute].to_s.length }.max
 end
 
 def print_grid(items)
@@ -54,10 +54,10 @@ end
 
 def column_widths(entries)
   {
-    nlink: max_width(entries) { |e| e[:nlink] },
-    owner: max_width(entries) { |e| e[:owner] },
-    group: max_width(entries) { |e| e[:group] },
-    size: max_width(entries) { |e| e[:size] }
+    nlink: max_width(entries, :nlink),
+    owner: max_width(entries, :owner),
+    group: max_width(entries, :group),
+    size: max_width(entries, :size)
   }
 end
 
