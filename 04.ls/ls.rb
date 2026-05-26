@@ -24,15 +24,21 @@ def display_grid(items)
   end
 end
 
+def entories(all: false, reverse: false)
+  flag = all ? File::FNM_DOTMATCH : 0
+  items = Dir.glob('*', flag)
+  reverse ? items.reverse : items
+end
+
 def main
-  params = {}
+  oputions = {}
   OptionParser.new do |opt|
-    opt.on('-a') { params[:all] = true }
+    opt.on('-a') { oputions[:all] = true }
+    opt.on('-r') { oputions[:reverse] = true }
   end.parse!(ARGV)
 
-  flag = params[:all] ? File::FNM_DOTMATCH : 0
-  items = Dir.glob('*', flag)
-  display_grid(items)
+  entries = entories(**oputions)
+  display_grid(entries)
 end
 
 main
