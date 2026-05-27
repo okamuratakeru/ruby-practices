@@ -8,7 +8,7 @@ class Frame
     @frame_number = number
   end
 
-  def add_shot(shot)
+  def throw_shot(shot)
     @shots << shot
   end
 

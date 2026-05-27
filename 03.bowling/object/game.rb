@@ -16,7 +16,7 @@ class Game
     frames = [Frame.new(1)]
     shots.each do |shot|
       frames << Frame.new(frames.size + 1) if frames.last.full?
-      frames.last.add_shot(shot)
+      frames.last.throw_shot(shot)
     end
     frames
   end
