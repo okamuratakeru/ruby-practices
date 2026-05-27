@@ -13,10 +13,13 @@ class Game
   private
 
   def build_frames(shots)
-    frames = [Frame.new(1)]
-    shots.each do |shot|
-      frames << Frame.new(frames.size + 1) if frames.last.full?
-      frames.last.throw_shot(shot)
+    frames = 10.times.map { |i| Frame.new(i + 1) }
+    shot_index = 0
+    frames.each do |frame|
+      until frame.full?
+        frame.throw_shot(shots[shot_index])
+        shot_index += 1
+      end
     end
     frames
   end
