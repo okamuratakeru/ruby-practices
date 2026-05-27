@@ -7,7 +7,7 @@ class Game
   end
 
   def total_score
-    @frames.sum { |frame| score_for(frame) }
+    @frames.each_with_index.sum { |frame, i| frame.score(@frames[(i + 1)..]) }
   end
 
   private
@@ -22,19 +22,5 @@ class Game
       end
     end
     frames
-  end
-
-  def score_for(frame)
-    bonus = if frame.last_frame? then 0
-            elsif frame.strike?  then next_shots(frame).first(2).sum(&:pin)
-            elsif frame.spare?   then next_shots(frame).first(1).sum(&:pin)
-            else 0
-            end
-    frame.base_score + bonus
-  end
-
-  def next_shots(frame)
-    frame_index = @frames.index(frame)
-    @frames[(frame_index + 1)..].flat_map(&:shots)
   end
 end
