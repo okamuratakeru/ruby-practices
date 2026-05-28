@@ -28,11 +28,12 @@ def format_line(lines, words, bytes, label)
   "#{counts} #{label}"
 end
 
-def print_file_stats(file_paths, stats)
+def print_stats(file_paths, stats, options)
   file_paths.each_with_index do |path, i|
     lines, words, bytes = stats[i]
     puts format_line(lines, words, bytes, File.basename(path))
   end
+  print_total_stats(stats, options) if file_paths.size > 1
 end
 
 def print_total_stats(stats, options)
@@ -52,10 +53,9 @@ def parse_options
   options.empty? ? { lines: true, words: true, bytes: true } : options
 end
 
-def parse_file_names
-  return $stdin.readlines.reject { |line| line.split.first == 'total' }.map { |line| line.split[-1] }.compact unless $stdin.tty?
-
-  ARGV
+def resolve_file_paths
+  names = $stdin.tty? ? ARGV : $stdin.readlines.reject { |line| line.split.first == 'total' }.map { |line| line.split[-1] }.compact
+  names.map { |name| get_file_path(name) }
 end
 
 def build_stats(file_paths, options)
@@ -70,11 +70,10 @@ end
 
 def main
   options = parse_options
-  file_paths = parse_file_names.map { |name| get_file_path(name) }
+  file_paths = resolve_file_paths
   stats = build_stats(file_paths, options)
 
-  print_file_stats(file_paths, stats)
-  print_total_stats(stats, options) if file_paths.size >= 2
+  print_stats(file_paths, stats, options)
 end
 
 main
