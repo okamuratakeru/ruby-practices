@@ -28,7 +28,8 @@ class Frame
     @frame_number == 10
   end
 
-  def score(next_shots)
+  def score(next_frames)
+    next_shots = next_frames.flat_map(&:shots)
     bonus = if last_frame? then 0
             elsif strike?  then next_shots.first(2).sum(&:pin)
             elsif spare?   then next_shots.first(1).sum(&:pin)

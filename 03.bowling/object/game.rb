@@ -8,8 +8,8 @@ class Game
 
   def total_score
     @frames.each_with_index.sum do |frame, i|
-      next_shots = @frames[(i + 1)..].flat_map(&:shots).first(2)
-      frame.score(next_shots)
+      next_frames = @frames[(i + 1)..].first(2)
+      frame.score(next_frames)
     end
   end
 
