@@ -2,10 +2,10 @@
 
 require_relative 'options'
 require_relative 'file_entry'
-require_relative 'display_target'
+require_relative 'file_list'
 require_relative 'formatter'
 
-class Ls
+class LsCommand
   def initialize(argv)
     @argv = argv
   end
@@ -13,7 +13,7 @@ class Ls
   def run
     @options = Options.new(@argv)
     file_entries = Dir.entries('.').map { |name| FileEntry.new(name) }
-    entries = DisplayTarget.new(file_entries, @options).to_a
+    entries = FileList.new(file_entries, @options).to_a
     puts Formatter.new(entries, @options).format
   end
 end
