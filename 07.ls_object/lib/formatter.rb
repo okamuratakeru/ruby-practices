@@ -24,19 +24,20 @@ class Formatter
 
     names = @files.map(&:name)
     rows = names.size.ceildiv(COLUMN_COUNT)
-    padded_columns = build_padded_columns(names, rows)
-    padded_columns.transpose.map { |row| format_short_row(row) }.join("\n")
+    padded_columns, widths = build_padded_columns(names, rows)
+    padded_columns.transpose.map { |row| format_short_row(row, widths) }.join("\n")
   end
 
   def build_padded_columns(names, rows)
     columns = names.each_slice(rows).to_a
-    @column_max_widths = columns.map { |col| col.map(&:length).max }
-    columns.map { |col| col + [nil] * (rows - col.length) }
+    widths = columns.map { |col| col.map(&:length).max }
+    padded = columns.map { |col| col + [nil] * (rows - col.length) }
+    [padded, widths]
   end
 
-  def format_short_row(row)
+  def format_short_row(row, widths)
     row.each_with_index.map do |name, i|
-      name ? name.ljust(@column_max_widths[i]) : ''
+      name ? name.ljust(widths[i]) : ''
     end.join(COLUMN_SPACING).rstrip
   end
 
