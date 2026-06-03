@@ -3,14 +3,6 @@
 
 require 'optparse'
 
-def get_file_path(file_name)
-  current_dir = Dir.pwd
-  file_path = File.join(current_dir, file_name)
-  abort "wc: #{file_name}: No such file or directory" unless File.exist?(file_path)
-
-  file_path
-end
-
 def count_text(text, options)
   [
     options[:lines] ? text.count("\n") : nil,
@@ -48,6 +40,14 @@ def parse_options
   options.empty? ? { lines: true, words: true, bytes: true } : options
 end
 
+def get_file_path(file_name)
+  current_dir = Dir.pwd
+  file_path = File.join(current_dir, file_name)
+  abort "wc: #{file_name}: No such file or directory" unless File.exist?(file_path)
+
+  file_path
+end
+
 def main
   options = parse_options
 
@@ -56,8 +56,8 @@ def main
     puts format_line(*count_text(text, options), '')
   else
     file_paths = ARGV.map { |name| get_file_path(name) }
-    stats = file_paths.map { |path| count_text(File.read(path), options) }
-    print_stats(file_paths, stats, options)
+    file_stats = file_paths.map { |path| count_text(File.read(path), options) }
+    print_stats(file_paths, file_stats, options)
   end
 end
 
