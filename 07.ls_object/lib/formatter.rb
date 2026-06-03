@@ -28,27 +28,23 @@ class Formatter
     padded_columns.transpose.map { |row| format_short_row(row) }.join("\n")
   end
 
-  def long_format
-    total = "total #{@files.map(&:blocks).sum}"
-    widths = column_widths
-    lines = @files.map { |file| format_long_line(file, widths) }
-    ([total] + lines).join("\n")
-  end
-
   def build_padded_columns(names, rows)
     columns = names.each_slice(rows).to_a
-    @column_widths = columns.map { |col| col.map(&:length).max }
+    @column_max_widths = columns.map { |col| col.map(&:length).max }
     columns.map { |col| col + [nil] * (rows - col.length) }
   end
 
   def format_short_row(row)
     row.each_with_index.map do |name, i|
-      name ? name.ljust(@column_widths[i]) : ''
+      name ? name.ljust(@column_max_widths[i]) : ''
     end.join(COLUMN_SPACING).rstrip
   end
 
-  def max_length(&block)
-    @files.map(&block).map(&:to_s).map(&:length).max || 0
+  def long_format
+    total = "total #{@files.map(&:blocks).sum}"
+    widths = column_widths
+    lines = @files.map { |file| format_long_line(file, widths) }
+    ([total] + lines).join("\n")
   end
 
   def column_widths
@@ -58,6 +54,10 @@ class Formatter
       group: max_length(&:group),
       size: max_length(&:size)
     }
+  end
+
+  def max_length(&block)
+    @files.map(&block).map(&:to_s).map(&:length).max || 0
   end
 
   def format_long_line(file, widths)

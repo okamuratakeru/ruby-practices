@@ -2,6 +2,7 @@
 
 require_relative 'options'
 require_relative 'file_entry'
+require_relative 'display_target'
 require_relative 'formatter'
 
 class Ls
@@ -10,33 +11,9 @@ class Ls
   end
 
   def run
-    parse_arguments
-    build_entries
-    filter_entries
-    sort_entries
-    output
-  end
-
-  private
-
-  def parse_arguments
     @options = Options.new(@argv)
-  end
-
-  def build_entries
-    @entries = Dir.entries('.').map { |name| FileEntry.new(name) }
-  end
-
-  def filter_entries
-    @entries = @entries.reject(&:hidden?) unless @options.all?
-  end
-
-  def sort_entries
-    @entries = @entries.sort_by(&:name)
-    @entries = @entries.reverse if @options.reverse?
-  end
-
-  def output
-    puts Formatter.new(@entries, @options).format
+    file_entries = Dir.entries('.').map { |name| FileEntry.new(name) }
+    entries = DisplayTarget.new(file_entries, @options).to_a
+    puts Formatter.new(entries, @options).format
   end
 end
