@@ -11,27 +11,22 @@ def get_file_path(file_name)
   file_path
 end
 
-def get_line_count(file_path)
-  File.read(file_path).count("\n")
-end
-
-def get_word_count(file_path)
-  File.read(file_path).split.size
-end
-
-def get_byte_count(file_path)
-  File.size(file_path)
+def count_text(text, options)
+  [
+    options[:lines] ? text.count("\n") : nil,
+    options[:words] ? text.split.size : nil,
+    options[:bytes] ? text.bytesize : nil
+  ]
 end
 
 def format_line(lines, words, bytes, label)
   counts = [lines, words, bytes].compact.map { |n| format('%<n>8d', n:) }.join
-  "#{counts} #{label}"
+  label.empty? ? counts : "#{counts} #{label}"
 end
 
 def print_stats(file_paths, stats, options)
   file_paths.each_with_index do |path, i|
-    lines, words, bytes = stats[i]
-    puts format_line(lines, words, bytes, File.basename(path))
+    puts format_line(*stats[i], File.basename(path))
   end
   print_total_stats(stats, options) if file_paths.size > 1
 end
@@ -53,27 +48,17 @@ def parse_options
   options.empty? ? { lines: true, words: true, bytes: true } : options
 end
 
-def resolve_file_paths
-  names = $stdin.tty? ? ARGV : $stdin.readlines.reject { |line| line.split.first == 'total' }.map { |line| line.split[-1] }.compact
-  names.map { |name| get_file_path(name) }
-end
-
-def build_stats(file_paths, options)
-  file_paths.map do |path|
-    [
-      options[:lines] ? get_line_count(path) : nil,
-      options[:words] ? get_word_count(path) : nil,
-      options[:bytes] ? get_byte_count(path) : nil
-    ]
-  end
-end
-
 def main
   options = parse_options
-  file_paths = resolve_file_paths
-  stats = build_stats(file_paths, options)
 
-  print_stats(file_paths, stats, options)
+  if !$stdin.tty? && ARGV.empty?
+    text = $stdin.read
+    puts format_line(*count_text(text, options), '')
+  else
+    file_paths = ARGV.map { |name| get_file_path(name) }
+    stats = file_paths.map { |path| count_text(File.read(path), options) }
+    print_stats(file_paths, stats, options)
+  end
 end
 
 main
