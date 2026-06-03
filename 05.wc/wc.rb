@@ -16,18 +16,22 @@ def format_line(lines, words, bytes, label)
   label.empty? ? counts : "#{counts} #{label}"
 end
 
-def print_stats(file_paths, stats, options)
-  file_paths.each_with_index do |path, i|
-    puts format_line(*stats[i], File.basename(path))
-  end
-  print_total_stats(stats, options) if file_paths.size > 1
+def calc_totals(file_stats, options)
+  [
+    options[:lines] ? file_stats.sum { |e| e[:stats][0] } : nil,
+    options[:words] ? file_stats.sum { |e| e[:stats][1] } : nil,
+    options[:bytes] ? file_stats.sum { |e| e[:stats][2] } : nil
+  ]
 end
 
-def print_total_stats(stats, options)
-  total_lines = stats.sum { |s| s[0] } if options[:lines]
-  total_words = stats.sum { |s| s[1] } if options[:words]
-  total_bytes = stats.sum { |s| s[2] } if options[:bytes]
-  puts format_line(total_lines, total_words, total_bytes, 'total')
+def print_stats(file_stats, options)
+  file_stats.each do |entry|
+    puts format_line(*entry[:stats], File.basename(entry[:path]))
+  end
+
+  return unless file_stats.size > 1
+
+  puts format_line(*calc_totals(file_stats, options), 'total')
 end
 
 def parse_options
@@ -55,9 +59,9 @@ def main
     text = $stdin.read
     puts format_line(*count_text(text, options), '')
   else
-    file_paths = ARGV.map { |name| get_file_path(name) }
-    file_stats = file_paths.map { |path| count_text(File.read(path), options) }
-    print_stats(file_paths, file_stats, options)
+    file_stats = ARGV.map { |name| get_file_path(name) }
+                     .map { |path| { path: path, stats: count_text(File.read(path), options) } }
+    print_stats(file_stats, options)
   end
 end
 
