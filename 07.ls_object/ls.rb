@@ -3,4 +3,4 @@
 
 require_relative 'lib/ls_command'
 
-Ls.new(ARGV).run
+LsCommand.new(ARGV).run

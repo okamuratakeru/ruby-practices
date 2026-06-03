@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DisplayTarget
+class FileList
   def initialize(entries, options)
     @entries = entries
     @options = options
