@@ -2,21 +2,18 @@
 
 class Options
   def initialize(argv)
-    flags = argv.select { |a| a.start_with?('-') }.join.delete('-')
-    @all = flags.include?('a')
-    @long = flags.include?('l')
-    @reverse = flags.include?('r')
+    @flags = argv.select { |a| a.start_with?('-') }.join.delete('-')
   end
 
   def all?
-    @all
+    @flags.include?('a')
   end
 
   def long?
-    @long
+    @flags.include?('l')
   end
 
   def reverse?
-    @reverse
+    @flags.include?('r')
   end
 end
