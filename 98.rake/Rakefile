@@ -1,0 +1,19 @@
+CC = 'gcc'.freeze
+
+task default: :incremental
+
+task incremental: 'main'
+
+task :simple do
+  sh 'gcc main.c -o main'
+end
+
+# 1. mainという実行ファイルを作るには main.o が必要
+file 'main' => 'main.o' do |t|
+  sh "#{CC} -o #{t.name} #{t.prerequisites.join(' ')}"
+end
+
+# 2. main.o というオブジェクトファイルを作るには main.c が必要
+file 'main.o' => 'main.c' do |t|
+  sh "#{CC} -c #{t.prerequisites[0]}"
+end
