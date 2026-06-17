@@ -14,7 +14,7 @@ end
 
 # スコアを計算する
 score = frame_starts.sum do |shot_index|
-  end_offset = if shots[shot_index] == 10 || shots[shot_index...(shot_index + 2)].sum == 10
+  end_offset = if shots[shot_index] == 10 || shots[shot_index..(shot_index + 1)].sum == 10
                  2
                else
                  1
